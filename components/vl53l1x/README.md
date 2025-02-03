@@ -27,16 +27,17 @@ The following yaml can be used so ESPHome accesses the component files:
 external_components:
   - source: github://mrtoy-me/esphome-components-test@main
     components: [ vl53l1x ]
+    refresh: 0s
 ```
 This component supports VL53L1X (up to 4000mm range) and VL53L4CD (up to 1300mm range) with default i2c address of 0x29.<BR>
-Timing budget (measurement period) is set internally at 500ms. Ranging occurs continuously every 500ms, but measurements are published at the specified update interval. **Note: update interval should be greater than 1 second.**<BR>
+Timing budget (measurement period) is set internally at 500ms. Ranging occurs continuously every 500ms, but measurements are published at the specified update interval. **Note: update interval should be greater or equal to 1 second.**<BR>
 
 The ***vl53l1x:*** configuration allows defining:<BR>
 ***distance_mode:*** which can be either ***short*** or ***long*** with default ***long***<BR>
 ***update_interval:*** which defaults to 60s<BR>
 **Note: the VL53L4CD sensor can only have distance_mode: short, if VL53L4CD is detected then distance mode is forced to ***short***.**<BR>
 
-Two sensors can be configured ***distance:*** which is required and ***range_status:*** which is optional<BR>
+Two sensors can be configured ***distance:*** and ***range_status:***<BR>
 Distance has units mm while range status gives the status code of the distance measurement.<BR>
 **Note: A distance value is returned irrespective of the range status value. It is recommended that a template sensor is used to return the desired value when range status is not valid. See Example YAML below**<BR>
 
