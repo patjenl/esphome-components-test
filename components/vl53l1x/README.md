@@ -25,7 +25,7 @@ This component requires Esphome version 2023.7.1 or later.
 The following yaml can be used so ESPHome accesses the component files:
 ```
 external_components:
-  - source: github://mrtoy-me/esphome-test@main
+  - source: github://mrtoy-me/esphome-components-test@main
     components: [ vl53l1x ]
 ```
 This component supports VL53L1X (up to 4000mm range) and VL53L4CD (up to 1300mm range) with default i2c address of 0x29.<BR>
@@ -72,7 +72,7 @@ Range status values are as follows:<BR>
 ## Example YAML
 ```
 external_components:
-  - source: github://mrtoy-me/esphome-test@main
+  - source: github://mrtoy-me/esphome-components-test@main
     components: [ vl53l1x ]
 
 i2c:
@@ -93,7 +93,7 @@ sensor:
 
   - platform: template
    name: My Distance
-   device_class: "temperature"
+   device_class: "distance"
    state_class: "measurement"
    unit_of_measurement: "mm"
    accuracy_decimals: 0
