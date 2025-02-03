@@ -74,6 +74,7 @@ Range status values are as follows:<BR>
 external_components:
   - source: github://mrtoy-me/esphome-components-test@main
     components: [ vl53l1x ]
+    refresh: 0s
 
 i2c:
     sda: 21
@@ -82,26 +83,26 @@ i2c:
 
 sensor:
   - platform: vl53l1x
-   distance_mode: long
-   distance:
-     name: My Raw Distance
-     id: my_raw_distance
-   range_status:
-     name: My Range Status
-     id: my_range_status
-   update_interval: 1s
+    distance_mode: long
+    distance:
+      name: My Raw Distance
+      id: my_raw_distance
+    range_status:
+      name: My Range Status
+      id: my_range_status
+    update_interval: 1s
 
   - platform: template
-   name: My Distance
-   device_class: "distance"
-   state_class: "measurement"
-   unit_of_measurement: "mm"
-   accuracy_decimals: 0
-   lambda: |-
-      if (id(my_range_status).state > 0) {
-        return NAN;
-      } else {
-        return id(my_raw_distance).state;
-      }
-   update_interval: 1s
+    name: My Distance
+    device_class: "distance"
+    state_class: "measurement"
+    unit_of_measurement: "mm"
+    accuracy_decimals: 0
+    lambda: |-
+       if (id(my_range_status).state > 0) {
+         return NAN;
+       } else {
+         return id(my_raw_distance).state;
+       }
+    update_interval: 1s
 ```
