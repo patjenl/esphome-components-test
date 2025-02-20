@@ -74,6 +74,7 @@ void Tas5805mComponent::dump_config() {
       break;
     case NONE:
       ESP_LOGD(TAG, "  Registers configured: %i", this->number_registers_configured_);
+
       ESP_LOGD(TAG, "  Digital volume control: %i", this->raw_volume_);
       uint8_t raw_gain;
       if (get_gain(&raw_gain)) ESP_LOGD(TAG, "  Analog gain control: %i", raw_gain);
@@ -165,7 +166,7 @@ bool Tas5805mComponent::set_digital_volume(float volume) {
   uint8_t raw_volume = remap<uint8_t, float>(new_volume, 0.0f, 1.0f, 254, 0);
   if (!this->tas5805m_write_byte(DIG_VOL_CTRL_REGISTER, raw_volume)) return false;
   ESP_LOGD(TAG, "  Volume: %4.2f = Tas5805m Digital Volume: %i", new_volume, raw_volume);
-  this->raw_volume_ = raw_volume;
+  //this->raw_volume_ = raw_volume;
   this->volume_ = new_volume;
   return true;
 }
