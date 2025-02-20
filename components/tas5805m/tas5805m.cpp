@@ -84,12 +84,7 @@ void Tas5805mComponent::dump_config() {
 }
 
 bool Tas5805mComponent::set_volume(float volume) {
-  this->volume_ = clamp<float>(volume, 0.0, 1.0);
-  //uint8_t raw = (uint8_t)((1.0 - this->volume_) * 254);
-  uint8_t raw = remap<uint8_t, float>(this->volume_, 0.0f, 1.0f, 254, 0);
-  this->set_digital_volume(raw);
-  ESP_LOGD(TAG, "  raw digital volume = %i", raw);
-  return true;
+  return this->set_digital_volume(volume);
 }
 
 // 0-255, where 0 = 0 Db, 255 = -15.5 Db
@@ -116,7 +111,8 @@ bool Tas5805mComponent::set_gain(uint8_t value) {
 }
 
 bool Tas5805mComponent::set_mute_off() {
-  if (!this->tas5805m_write_byte(DIG_VOL_CTRL_REGISTER, this->raw_volume_)) return false;
+  this->set_volume(this_volume_);
+  //if (!this->tas5805m_write_byte(DIG_VOL_CTRL_REGISTER, this->raw_volume_)) return false;
   this->is_muted_ = false;
   ESP_LOGD(TAG, "  tas5805m mute off");
   return true;
@@ -124,9 +120,9 @@ bool Tas5805mComponent::set_mute_off() {
 
 bool Tas5805mComponent::set_mute_on() {
   uint8_t raw;
-  if (!this->get_digital_volume(&raw)) return false;
+  // if (!this->get_digital_volume(&raw)) return false;
+  // this->raw_volume_ = raw;
   if (!this->tas5805m_write_byte(DIG_VOL_CTRL_REGISTER, 0xFF)) return false;
-  this->raw_volume_ = raw;
   this->is_muted_ = true;
   ESP_LOGD(TAG, "  tas5805m mute on");
   return true;
@@ -162,10 +158,13 @@ bool Tas5805mComponent::get_digital_volume(uint8_t* raw_volume) {
 // 00110001: -0.5 dB
 // 11111110: -103 dB
 // 11111111: Mute
-bool Tas5805mComponent::set_digital_volume(uint8_t raw_volume) {
+bool Tas5805mComponent::set_digital_volume(float volume) {
+  float new_volume = clamp<float>(volume, 0.0, 1.0);
+  uint8_t raw_volume = remap<uint8_t, float>(new_volume, 0.0f, 1.0f, 254, 0);
   if (!this->tas5805m_write_byte(DIG_VOL_CTRL_REGISTER, raw_volume)) return false;
-  ESP_LOGD(TAG, "  tas5805m set digital volume %i", raw_volume);
+  ESP_LOGD(TAG, "  Volume: %3.1f = Tas5805m Digital Volume: %i", new_volume, raw_volume);
   this->raw_volume_ = raw_volume;
+  this->volume_ = new_volume;
   return true;
 }
 
