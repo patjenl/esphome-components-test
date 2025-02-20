@@ -25,7 +25,7 @@ void Tas5805mComponent::setup() {
 
   this->set_timeout(100, [this]() {
       if (!configure_registers()) {
-        this->error_code_ = CONFIG_FAILED;
+        this->error_code_ = CONFIGURATION_FAILED;
         this->mark_failed();
       }
 
