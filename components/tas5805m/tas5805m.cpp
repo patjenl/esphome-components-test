@@ -102,11 +102,11 @@ bool Tas5805mComponent::get_gain(uint8_t* value) {
     return true;
 }
 
-Analog Gain Control , with 0.5dB one step
-lower 5 bits controls the analog gain.
-00000: 0 dB (29.5V peak voltage)
-00001: -0.5db
-11111: -15.5 dB
+//Analog Gain Control , with 0.5dB one step
+//lower 5 bits controls the analog gain.
+//00000: 0 dB (29.5V peak voltage)
+//00001: -0.5db
+//11111: -15.5 dB
 bool Tas5805mComponent::set_gain(uint8_t value) {
   uint8_t raw;
   this->get_gain(&raw);
