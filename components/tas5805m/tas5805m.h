@@ -22,8 +22,8 @@ class Tas5805mComponent : public audio_dac::AudioDac, public Component, public i
 
   void set_enable_pin(GPIOPin *enable) { this->enable_pin_ = enable; }
 
-  // float volume() override { return this->volume_; }
-  // bool set_volume(float value) override;
+  float volume() override { return this->volume_; }
+  bool set_volume(float value) override;
 
   bool set_mute_off() override;
   bool set_mute_on() override;
@@ -33,6 +33,8 @@ class Tas5805mComponent : public audio_dac::AudioDac, public Component, public i
   bool set_deep_sleep_on();
 
   bool get_digital_volume(uint8_t* raw_volume);
+  bool get_gain(uint8_t* value);
+  bool set_gain(uint8_t value);
 
  protected:
    GPIOPin *enable_pin_{nullptr};
@@ -53,7 +55,9 @@ class Tas5805mComponent : public audio_dac::AudioDac, public Component, public i
 
    float volume_{0};
 
+   uint8_t raw_gain{0};
    uint8_t raw_volume_{48}; // tas5805 volume 0-254 == 24 to -103 db; 48 = 0db
+
    uint8_t i2c_error_{0};
 
    uint16_t number_registers_configured_{0};

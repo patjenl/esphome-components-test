@@ -11,7 +11,8 @@ static const char *const TAG = "tas5805m";
 
 // tas5805m registers
 static const uint8_t DEVICE_CTRL_2_REGISTER = 0x03; // Device state control register
-static const uint8_t DIG_VOL_CTRL_REGISTER  = 0x4c;
+static const uint8_t DIG_VOL_CTRL_REGISTER  = 0x4C;
+static const uint8_t AGAIN_REGISTER         = 0x54;
 
 void Tas5805mComponent::setup() {
   if (this->enable_pin_ != nullptr) {
@@ -35,6 +36,7 @@ void Tas5805mComponent::setup() {
       else {
         this->raw_volume_ = raw;
       }
+      set_gain(15);
   });
 }
 
@@ -73,6 +75,8 @@ void Tas5805mComponent::dump_config() {
     case NONE:
       ESP_LOGD(TAG, "  Registers configured: %i", this->number_registers_configured_);
       ESP_LOGD(TAG, "  Digital volume control: %i", this->raw_volume_);
+      uint8_t raw_gain;
+      if (get_gain(&raw_gain)) ESP_LOGD(TAG, "  Analog gain control: %i", raw_gain);
       ESP_LOGD(TAG, "  Setup successful");
       LOG_I2C_DEVICE(this);
       break;
@@ -86,6 +90,29 @@ bool Tas5805mComponent::set_volume(float volume) {
   //this->set_digital_volume(raw);
   ESP_LOGD(TAG, "  raw digital volume = %i", raw);
   return true;
+}
+
+0-255, where 0 = 0 Db, 255 = -15.5 Db
+bool Tas5805mComponent::get_gain(uint8_t* value) {
+    *value = 0;
+    uint8_t raw;
+    if (!this->tas5805m_read_byte(AGAIN_REGISTER, &raw)) return false;
+    // remove top 3 reserved bits
+    *value = raw & 0x1F;
+    return true;
+}
+
+Analog Gain Control , with 0.5dB one step
+lower 5 bits controls the analog gain.
+00000: 0 dB (29.5V peak voltage)
+00001: -0.5db
+11111: -15.5 dB
+bool Tas5805mComponent::set_gain(uint8_t value) {
+  uint8_t raw;
+  this->get_gain(&raw);
+  // keep top 3 reserved bits combine with bottom 5 gain bits
+  value = (raw & 0xE0) | (value & 0x1F);
+  return this->tas5805m_write_byte(AGAIN_REGISTER, value);
 }
 
 bool Tas5805mComponent::set_mute_off() {
