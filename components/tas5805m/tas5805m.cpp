@@ -111,7 +111,8 @@ bool Tas5805mComponent::set_gain(uint8_t value) {
 }
 
 bool Tas5805mComponent::set_mute_off() {
-  //this->set_volume(this->volume_);
+  if (!this->is_muted) return true;
+  this->set_volume(this->volume_);
   //if (!this->tas5805m_write_byte(DIG_VOL_CTRL_REGISTER, this->raw_volume_)) return false;
   this->is_muted_ = false;
   ESP_LOGD(TAG, "  tas5805m mute off");
@@ -119,6 +120,7 @@ bool Tas5805mComponent::set_mute_off() {
 }
 
 bool Tas5805mComponent::set_mute_on() {
+  if (this->is_muted) return true;
   uint8_t raw;
   // if (!this->get_digital_volume(&raw)) return false;
   // this->raw_volume_ = raw;
@@ -162,7 +164,7 @@ bool Tas5805mComponent::set_digital_volume(float volume) {
   float new_volume = clamp<float>(volume, 0.0, 1.0);
   uint8_t raw_volume = remap<uint8_t, float>(new_volume, 0.0f, 1.0f, 254, 0);
   if (!this->tas5805m_write_byte(DIG_VOL_CTRL_REGISTER, raw_volume)) return false;
-  ESP_LOGD(TAG, "  Volume: %3.1f = Tas5805m Digital Volume: %i", new_volume, raw_volume);
+  ESP_LOGD(TAG, "  Volume: %4.2f = Tas5805m Digital Volume: %i", new_volume, raw_volume);
   this->raw_volume_ = raw_volume;
   this->volume_ = new_volume;
   return true;
