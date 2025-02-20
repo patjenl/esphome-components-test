@@ -36,7 +36,7 @@ void Tas5805mComponent::setup() {
       else {
         this->raw_volume_ = raw;
       }
-      set_gain(25);
+      set_gain(30);
   });
 }
 
