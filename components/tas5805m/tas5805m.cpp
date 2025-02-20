@@ -36,7 +36,7 @@ void Tas5805mComponent::setup() {
       else {
         this->raw_volume_ = raw;
       }
-      set_gain(15);
+      set_gain(25);
   });
 }
 
@@ -87,7 +87,7 @@ bool Tas5805mComponent::set_volume(float volume) {
   this->volume_ = clamp<float>(volume, 0.0, 1.0);
   //uint8_t raw = (uint8_t)((1.0 - this->volume_) * 254);
   uint8_t raw = remap<uint8_t, float>(this->volume_, 0.0f, 1.0f, 254, 0);
-  //this->set_digital_volume(raw);
+  this->set_digital_volume(raw);
   ESP_LOGD(TAG, "  raw digital volume = %i", raw);
   return true;
 }
