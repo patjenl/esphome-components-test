@@ -111,7 +111,7 @@ bool Tas5805mComponent::set_gain(uint8_t value) {
 }
 
 bool Tas5805mComponent::set_mute_off() {
-  if (!this->is_muted) return true;
+  if (!this->is_muted_) return true;
   this->set_volume(this->volume_);
   //if (!this->tas5805m_write_byte(DIG_VOL_CTRL_REGISTER, this->raw_volume_)) return false;
   this->is_muted_ = false;
@@ -120,7 +120,7 @@ bool Tas5805mComponent::set_mute_off() {
 }
 
 bool Tas5805mComponent::set_mute_on() {
-  if (this->is_muted) return true;
+  if (this->is_muted_) return true;
   uint8_t raw;
   // if (!this->get_digital_volume(&raw)) return false;
   // this->raw_volume_ = raw;
