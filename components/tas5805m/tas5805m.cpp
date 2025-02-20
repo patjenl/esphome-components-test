@@ -111,7 +111,7 @@ bool Tas5805mComponent::set_gain(uint8_t value) {
 }
 
 bool Tas5805mComponent::set_mute_off() {
-  this->set_volume(this->volume_);
+  //this->set_volume(this->volume_);
   //if (!this->tas5805m_write_byte(DIG_VOL_CTRL_REGISTER, this->raw_volume_)) return false;
   this->is_muted_ = false;
   ESP_LOGD(TAG, "  tas5805m mute off");
