@@ -1,5 +1,5 @@
 #include "tas5805m.h"
-#include "tas5805m_config_minimal.h"
+#include "tas5805m_config_2+basic.h"
 #include "esphome/core/log.h"
 #include "esphome/core/helpers.h"
 #include "esphome/core/hal.h"
