@@ -28,12 +28,12 @@ void Tas5805mComponent::setup() {
         this->error_code_ = CONFIGURATION_FAILED;
         this->mark_failed();
       }
-
+      // changed config so sets to 0x1F rather than 0x00
       // manually adjust analog gain to the minimum -15db
-      if (!this->set_gain(0x1F)) {
-        this->error_code_ = WRITE_REGISTER_FAILED;
-        this->mark_failed();
-      }
+      // if (!this->set_gain(0x1F)) {
+      //   this->error_code_ = WRITE_REGISTER_FAILED;
+      //   this->mark_failed();
+      // }
   });
 }
 
