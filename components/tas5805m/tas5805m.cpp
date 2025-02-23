@@ -71,6 +71,9 @@ void Tas5805mComponent::dump_config() {
       break;
     case NONE:
       ESP_LOGD(TAG, "  Registers configured: %i", this->number_registers_configured_);
+      uint8_t raw_gain;
+      this->get_gain(&raw_gain);
+      ESP_LOGD(TAG, "  Analog Gain: %i", raw_gain);
       ESP_LOGD(TAG, "  Setup successful");
       LOG_I2C_DEVICE(this);
       break;
