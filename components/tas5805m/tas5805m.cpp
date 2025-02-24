@@ -76,7 +76,7 @@ void Tas5805mComponent::dump_config() {
 bool Tas5805mComponent::set_volume(float volume) {
   float new_volume = clamp<float>(volume, 0.0, 1.0);
   uint8_t raw_volume = remap<uint8_t, float>(new_volume, 0.0f, 1.0f, 254, 0);
-  if (!this->set_digital_volume(raw_volume)) return;
+  if (!this->set_digital_volume(raw_volume)) return false;
   this->volume_ = new_volume;
   ESP_LOGD(TAG, "  Volume changed to: %4.2f%%", new_volume);
 }
