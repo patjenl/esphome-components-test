@@ -1140,7 +1140,7 @@ static const tas5805m_cfg_reg_t tas5805m_registers[] = {
   { 0x7f, 0x00 },
   { 0x02, 0x00 },
   { 0x30, 0x00 },
-  { 0x4c, 0x00 }, //   @mrtoy-me changed to lower start volume -45db (0x8A) for esphome
+  { 0x4c, 0x58 }, //   @mrtoy-me changed to lower start volume -45db (0x8A) for esphome
   { 0x53, 0x00 },
   { 0x54, 0x1F }, //   @mrtoy-me changed to minimum analog gain -15db gain for esphome
   { 0x03, 0x03 },
