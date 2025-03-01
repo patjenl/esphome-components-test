@@ -1,5 +1,6 @@
 substitutions:
   ANNOUNCE_VOLUME: "0.8"
+
 esphome:
   min_version: 2025.2.0
   name: esp32-louder
@@ -134,11 +135,9 @@ media_player:
           switch.is_off: enable_louder
         then:
           switch.turn_on: enable_louder
-      # - lambda: |-
-      #     if (!id(enable_louder).state) id(enable_louder).turn_on();
     announcement_pipeline:
       speaker: announcement_spk_resampling_input
-      num_channels: 2
+      num_channels: 1
     on_announcement:
       - if:
           condition:
@@ -146,7 +145,6 @@ media_player:
           then:
             switch.turn_on: enable_louder
       - lambda: |-
-          // if (!id(enable_louder).state) id(enable_louder).turn_on();
           id(current_volume) = id(tas5805m_dac).volume();
       - mixer_speaker.apply_ducking:
             id: media_spk_mixer_input
@@ -174,25 +172,23 @@ switch:
     optimistic: true
     restore_mode: ALWAYS_ON
     turn_on_action:
-      - logger.log: "Enable Louder Switch Template Turned On!"
       - lambda: !lambda |-
           id(tas5805m_dac).set_deep_sleep_off();
     turn_off_action:
-      - logger.log: "Enable Louder Switch Template Turned Off!"
       - lambda: !lambda |-
           id(tas5805m_dac).set_deep_sleep_on();
 
-# interval:
-#   - interval: 1min
-#     then:
-#       - if:
-#           condition:
-#             - switch.is_on: enable_louder
-#             - for:
-#                 time: 30s
-#                 condition:
-#                   or:
-#                     - media_player.is_idle: louder_mediaplayer
-#                     - media_player.is_paused: louder_mediaplayer
-#           then:
-#             - switch.turn_off: enable_louder
+interval:
+  - interval: 30s
+    then:
+      - if:
+          condition:
+            - switch.is_on: enable_louder
+            - for:
+                time: 60s
+                condition:
+                  or:
+                    - media_player.is_idle: louder_mediaplayer
+                    - media_player.is_paused: louder_mediaplayer
+          then:
+            - switch.turn_off: enable_louder
