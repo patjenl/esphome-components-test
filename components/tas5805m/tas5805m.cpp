@@ -105,6 +105,7 @@ bool Tas5805mComponent::set_gain(uint8_t new_value) {
   gain_value = (gain_value & 0xE0) | (raw_gain & 0x1F);
   if(!this->tas5805m_write_byte(AGAIN_REGISTER, gain_value)) return false;
   this->analog_gain_ = raw_gain;
+  return true;
 }
 
 bool Tas5805mComponent::set_mute_off() {
