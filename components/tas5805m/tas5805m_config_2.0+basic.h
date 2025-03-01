@@ -1140,7 +1140,7 @@ static const tas5805m_cfg_reg_t tas5805m_registers[] = {
   { 0x7f, 0x00 },
   { 0x02, 0x00 },
   { 0x30, 0x00 },
-  { 0x4c, 0x1C }, //   @mrtoy-me changed to digital volume 10db (28 decimal) to suit esphome arduino
+  { 0x4c, 0x14 }, //   @mrtoy-me changed to digital volume 14db (20 decimal) to suit esphome arduino
   { 0x53, 0x00 },
   { 0x54, 0x1F }, //   @mrtoy-me changed to analog gain -15db (31 decimal) to suit esphome arduino and idf
   { 0x03, 0x03 },
