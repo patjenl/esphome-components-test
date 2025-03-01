@@ -1,4 +1,5 @@
 esphome:
+  min_version: 2025.2.0
   name: esp32-louder
   platformio_options:
     board_build.flash_mode: dio
