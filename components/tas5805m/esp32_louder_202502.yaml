@@ -1,3 +1,5 @@
+substitutions:
+  ANNOUNCE_VOLUME: "0.8"
 esphome:
   min_version: 2025.2.0
   name: esp32-louder
@@ -93,13 +95,13 @@ speaker:
     id: speaker_id
     dac_type: external
     i2s_dout_pin: GPIO16
-    #audio_dac: tas5805m_dac
+    audio_dac: tas5805m_dac
     channel: stereo
     sample_rate: 48000
 
   - platform: mixer
     id: mixer_speaker_id
-    #task_stack_in_psram: true
+    task_stack_in_psram: true
     output_speaker: speaker_id
     source_speakers:
       - id: announcement_spk_mixer_input
@@ -107,22 +109,22 @@ speaker:
 
   - platform: resampler
     id: media_spk_resampling_input
-    #task_stack_in_psram: true
+    task_stack_in_psram: true
     output_speaker: media_spk_mixer_input
 
   - platform: resampler
     id: announcement_spk_resampling_input
-    #task_stack_in_psram: true
+    task_stack_in_psram: true
     output_speaker: announcement_spk_mixer_input
 
 media_player:
   - platform: speaker
     name: Louder-ESP32 mediaplayer
     id: louder_mediaplayer
-    #task_stack_in_psram: true
+    task_stack_in_psram: true
     volume_increment: 0.5%
     volume_min: 45%
-    volume_max: 89%
+    volume_max: 90%
     media_pipeline:
       speaker: media_spk_resampling_input
       num_channels: 2
@@ -154,7 +156,7 @@ media_player:
             media_player.is_announcing:
       - delay: 1.0s
       - lambda: |-
-          id(tas5805m_dac).set_volume(0.75);
+          id(tas5805m_dac).set_volume(${ANNOUNCE_VOLUME});
       - wait_until:
           not:
             media_player.is_announcing:
