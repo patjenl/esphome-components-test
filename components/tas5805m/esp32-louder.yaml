@@ -1,6 +1,10 @@
 esphome:
+<<<<<<< Updated upstream
   name: louder-esp32
   min_version: 2025.2.0
+=======
+  name: esp32-louder
+>>>>>>> Stashed changes
   platformio_options:
     build_flags: -DBOARD_HAS_PSRAM
     board_build.arduino.memory_type: qio_opi
@@ -28,15 +32,19 @@ logger:
 # Enable Home Assistant API
 api:
   encryption:
-    key: !secret louder_api
+    key: "w520PFA3Ik65hxHdBkVM/Q5wR/LIngfOFfX0QgQtduM="
 
 ota:
   - platform: esphome
-    password: !secret louder_ota
+    password: "35925d04e9ba07c835429bb2c040be8e"
 
 wifi:
   ssid: !secret wifi_ssid
   password: !secret wifi_password
+  manual_ip:
+   static_ip: 192.168.2.65
+   gateway: 192.168.2.1
+   subnet: 255.255.255.0
 
 captive_portal:
 
@@ -45,7 +53,7 @@ psram:
   speed: 80MHz
 
 external_components:
-  - source: github://mrtoy-me/esphome-components-test@main
+  - source: github://mrtoy-me/esphome-components-test@dev
     components: [ tas5805m ]
     refresh: 0s
 
