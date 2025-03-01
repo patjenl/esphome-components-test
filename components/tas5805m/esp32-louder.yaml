@@ -1,10 +1,6 @@
 esphome:
-<<<<<<< Updated upstream
-  name: louder-esp32
   min_version: 2025.2.0
-=======
   name: esp32-louder
->>>>>>> Stashed changes
   platformio_options:
     build_flags: -DBOARD_HAS_PSRAM
     board_build.arduino.memory_type: qio_opi
