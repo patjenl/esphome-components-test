@@ -103,7 +103,7 @@ bool Tas5805mComponent::set_gain(uint8_t new_value) {
   if (!this->get_gain(&gain_value)) return false;
   // keep top 3 reserved bits combine with bottom 5 analog gain bits
   gain_value = (gain_value & 0xE0) | (raw_gain & 0x1F);
-  if(!this->tas5805m_write_byte(AGAIN_REGISTER, gain_value) return false;
+  if(!this->tas5805m_write_byte(AGAIN_REGISTER, gain_value)) return false;
   this->analog_gain_ = raw_gain;
 }
 
@@ -158,7 +158,7 @@ bool Tas5805mComponent::set_digital_volume(uint8_t new_value) {
   uint8_t raw_volume = clamp<uint8_t>(new_value, 0, 254);
   if (!this->tas5805m_write_byte(DIG_VOL_CTRL_REGISTER, raw_volume)) return false;
   this->digital_volume_ = raw_volume;
-  ESP_LOGD(TAG, "  Tas5805m Digital Volume: %i", raw);
+  ESP_LOGD(TAG, "  Tas5805m Digital Volume: %i", raw_volume);
   return true;
 }
 
