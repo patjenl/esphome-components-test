@@ -152,6 +152,7 @@ bool Tas5805mComponent::get_digital_volume(uint8_t* raw_volume) {
 // 11111110: -103 dB
 // 11111111: Mute
 bool Tas5805mComponent::set_digital_volume(uint8_t raw_volume) {
+  uint8_t new_volume = clamp<uint8_t>(volume, 0, 254);
   if (!this->tas5805m_write_byte(DIG_VOL_CTRL_REGISTER, raw_volume)) return false;
   ESP_LOGD(TAG, "  Tas5805m Digital Volume: %i", raw_volume);
   return true;

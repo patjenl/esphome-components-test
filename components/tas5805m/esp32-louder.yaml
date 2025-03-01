@@ -1,7 +1,8 @@
 esphome:
   name: louder-esp32
-  friendly_name: louder-esp32
+  min_version: 2025.2.0
   platformio_options:
+    build_flags: -DBOARD_HAS_PSRAM
     board_build.arduino.memory_type: qio_opi
   on_boot:
   ## use priority 250 so gpio and i2c dac is setup before volume is set
@@ -11,6 +12,7 @@ esphome:
     - media_player.volume_set:
         id: louder_mediaplayer
         volume: 10%
+    - logger.log: "Arduino ESP32-Louder Running"
 
 esp32:
   board: esp32-s3-devkitc-1
@@ -70,8 +72,8 @@ media_player:
     dac_type: external
     i2s_dout_pin: GPIO16
     mode: stereo
-    on_play:
-      - switch.turn_on: enable_louder
+    # on_play:
+    #   - switch.turn_on: enable_louder
 
 switch:
   - platform: template
@@ -85,17 +87,17 @@ switch:
       - lambda: !lambda |-
           id(tas5805_dac).set_deep_sleep_on();
 
-interval:
-  - interval: 1min
-    then:
-      - if:
-          condition:
-            - switch.is_on: enable_louder
-            - for:
-                time: 30s
-                condition:
-                  or:
-                    - media_player.is_idle: louder_mediaplayer
-                    - media_player.is_paused: louder_mediaplayer
-          then:
-            - switch.turn_off: enable_louder
+# interval:
+#   - interval: 1min
+#     then:
+#       - if:
+#           condition:
+#             - switch.is_on: enable_louder
+#             - for:
+#                 time: 30s
+#                 condition:
+#                   or:
+#                     - media_player.is_idle: louder_mediaplayer
+#                     - media_player.is_paused: louder_mediaplayer
+#           then:
+#             - switch.turn_off: enable_louder
