@@ -1,0 +1,194 @@
+substitutions:
+  ANNOUNCE_VOLUME: "0.8"
+
+esphome:
+  min_version: 2025.2.0
+  name: esp32-louder
+  platformio_options:
+    board_build.flash_mode: dio
+  on_boot:
+  # use priority 250 so gpio and i2c dac is setup before volume is set
+    priority: 250
+    then:
+    ## Set a volume limit just to be safe...
+    - media_player.volume_set:
+        id: louder_mediaplayer
+        volume: 10%
+
+esp32:
+  board: esp32-s3-devkitc-1
+  variant: ESP32S3
+  flash_size: 16MB
+  framework:
+    type: esp-idf
+    version: recommended
+    sdkconfig_options:
+      CONFIG_ESP32S3_DEFAULT_CPU_FREQ_240: "y"
+      CONFIG_ESP32S3_DATA_CACHE_64KB: "y"
+      CONFIG_ESP32S3_DATA_CACHE_LINE_64B: "y"
+      CONFIG_ESP32S3_INSTRUCTION_CACHE_32KB: "y"
+
+      CONFIG_ESP32_S3_BOX_BOARD: "y"
+
+      CONFIG_BT_ALLOCATION_FROM_SPIRAM_FIRST: "y"
+      CONFIG_BT_BLE_DYNAMIC_ENV_MEMORY: "y"
+
+      CONFIG_MBEDTLS_EXTERNAL_MEM_ALLOC: "y"
+      CONFIG_MBEDTLS_SSL_PROTO_TLS1_3: "y"  # TLS1.3 support isn't enabled by default in IDF 5.1.5
+
+# Enable logging
+logger:
+  level: DEBUG
+
+# Enable Home Assistant API
+api:
+  encryption:
+    key: "w520PFA3Ik65hxHdBkVM/Q5wR/LIngfOFfX0QgQtduM="
+
+ota:
+  - platform: esphome
+    password: "35925d04e9ba07c835429bb2c040be8e"
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  manual_ip:
+   static_ip: 192.168.2.65
+   gateway: 192.168.2.1
+   subnet: 255.255.255.0
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "Esp32-Louder Fallback Hotspot"
+    password: "2SJ8qzBXk3SN"
+
+captive_portal:
+
+globals:
+  - id: current_volume
+    type: float
+
+psram:
+  mode: octal
+  speed: 80MHz
+
+external_components:
+  - source: github://mrtoy-me/esphome-components-test@dev
+    components: [ tas5805m ]
+    refresh: 0s
+
+i2c:
+  sda: GPIO8
+  scl: GPIO9
+  frequency: 400kHz
+  scan: True
+
+audio_dac:
+  - platform: tas5805m
+    id: tas5805m_dac
+    enable_pin: GPIO17
+
+i2s_audio:
+  i2s_lrclk_pin: GPIO15
+  i2s_bclk_pin: GPIO14
+
+speaker:
+  - platform: i2s_audio
+    id: speaker_id
+    dac_type: external
+    i2s_dout_pin: GPIO16
+    audio_dac: tas5805m_dac
+    channel: stereo
+    sample_rate: 48000
+
+  - platform: mixer
+    id: mixer_speaker_id
+    task_stack_in_psram: true
+    output_speaker: speaker_id
+    source_speakers:
+      - id: announcement_spk_mixer_input
+      - id: media_spk_mixer_input
+
+  - platform: resampler
+    id: media_spk_resampling_input
+    task_stack_in_psram: true
+    output_speaker: media_spk_mixer_input
+
+  - platform: resampler
+    id: announcement_spk_resampling_input
+    task_stack_in_psram: true
+    output_speaker: announcement_spk_mixer_input
+
+media_player:
+  - platform: speaker
+    name: Louder-ESP32 mediaplayer
+    id: louder_mediaplayer
+    task_stack_in_psram: true
+    volume_increment: 0.5%
+    volume_min: 45%
+    volume_max: 90%
+    media_pipeline:
+      speaker: media_spk_resampling_input
+      num_channels: 2
+    on_play:
+      if:
+        condition:
+          switch.is_off: enable_louder
+        then:
+          switch.turn_on: enable_louder
+    announcement_pipeline:
+      speaker: announcement_spk_resampling_input
+      num_channels: 1
+    on_announcement:
+      - if:
+          condition:
+            switch.is_off: enable_louder
+          then:
+            switch.turn_on: enable_louder
+      - lambda: |-
+          id(current_volume) = id(tas5805m_dac).volume();
+      - mixer_speaker.apply_ducking:
+            id: media_spk_mixer_input
+            decibel_reduction: 40
+            duration: 0.0s
+      - wait_until:
+            media_player.is_announcing:
+      - delay: 1.0s
+      - lambda: |-
+          id(tas5805m_dac).set_volume(${ANNOUNCE_VOLUME});
+      - wait_until:
+          not:
+            media_player.is_announcing:
+      - mixer_speaker.apply_ducking:
+            id: media_spk_mixer_input
+            decibel_reduction: 0
+            duration: 2.0s
+      - lambda: |-
+          id(tas5805m_dac).set_volume(id(current_volume));
+
+switch:
+  - platform: template
+    name: Enable Louder-ESP32
+    id: enable_louder
+    optimistic: true
+    restore_mode: ALWAYS_ON
+    turn_on_action:
+      - lambda: !lambda |-
+          id(tas5805m_dac).set_deep_sleep_off();
+    turn_off_action:
+      - lambda: !lambda |-
+          id(tas5805m_dac).set_deep_sleep_on();
+
+interval:
+  - interval: 30s
+    then:
+      - if:
+          condition:
+            - switch.is_on: enable_louder
+            - for:
+                time: 60s
+                condition:
+                  or:
+                    - media_player.is_idle: louder_mediaplayer
+                    - media_player.is_paused: louder_mediaplayer
+          then:
+            - switch.turn_off: enable_louder
