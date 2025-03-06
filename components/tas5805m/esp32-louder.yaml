@@ -1,8 +1,7 @@
 esphome:
-  min_version: 2025.2.0
-  name: esp32-louder
+  name: louder-esp32
+  friendly_name: louder-esp32
   platformio_options:
-    build_flags: "-DBOARD_HAS_PSRAM"
     board_build.arduino.memory_type: qio_opi
   on_boot:
   ## use priority 250 so gpio and i2c dac is setup before volume is set
@@ -27,11 +26,11 @@ logger:
 # Enable Home Assistant API
 api:
   encryption:
-    key: "w520PFA3Ik65hxHdBkVM/Q5wR/LIngfOFfX0QgQtduM="
+    key: !secret louder_api
 
 ota:
   - platform: esphome
-    password: "35925d04e9ba07c835429bb2c040be8e"
+    password: !secret louder_ota
 
 wifi:
   ssid: !secret wifi_ssid
@@ -44,7 +43,7 @@ psram:
   speed: 80MHz
 
 external_components:
-  - source: github://mrtoy-me/esphome-components-test@dev
+  - source: github://mrtoy-me/esphome-components-test@main
     components: [ tas5805m ]
     refresh: 0s
 
@@ -72,18 +71,13 @@ media_player:
     i2s_dout_pin: GPIO16
     mode: stereo
     on_play:
-      if:
-        condition:
-          switch.is_off: enable_louder
-        then:
-          switch.turn_on: enable_louder
+      - switch.turn_on: enable_louder
 
 switch:
   - platform: template
     name: Enable Louder-ESP32
     id: enable_louder
     optimistic: true
-    restore_mode: ALWAYS_ON
     turn_on_action:
       - lambda: !lambda |-
           id(tas5805_dac).set_deep_sleep_off();
@@ -91,17 +85,17 @@ switch:
       - lambda: !lambda |-
           id(tas5805_dac).set_deep_sleep_on();
 
-# interval:
-#   - interval: 1min
-#     then:
-#       - if:
-#           condition:
-#             - switch.is_on: enable_louder
-#             - for:
-#                 time: 30s
-#                 condition:
-#                   or:
-#                     - media_player.is_idle: louder_mediaplayer
-#                     - media_player.is_paused: louder_mediaplayer
-#           then:
-#             - switch.turn_off: enable_louder
+interval:
+  - interval: 1min
+    then:
+      - if:
+          condition:
+            - switch.is_on: enable_louder
+            - for:
+                time: 30s
+                condition:
+                  or:
+                    - media_player.is_idle: louder_mediaplayer
+                    - media_player.is_paused: louder_mediaplayer
+          then:
+            - switch.turn_off: enable_louder
