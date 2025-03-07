@@ -32,32 +32,35 @@ class Tas5805mComponent : public audio_dac::AudioDac, public Component, public i
   bool set_deep_sleep_off();
   bool set_deep_sleep_on();
 
-  bool get_digital_volume(uint8_t* raw_volume);
-
  protected:
    GPIOPin *enable_pin_{nullptr};
 
    bool configure_registers();
-   bool set_digital_volume(uint8_t raw_volume);
+
+  bool get_digital_volume(uint8_t* value);
+  bool set_digital_volume(uint8_t new_value);
+
+   bool get_gain(uint8_t* value);
+   bool set_gain(uint8_t new_value);
 
    bool tas5805m_write_byte(uint8_t a_register, uint8_t data);
    bool tas5805m_read_byte(uint8_t a_register, uint8_t* data);
 
    enum ErrorCode {
      NONE = 0,
-     WRITE_REGISTER_FAILED,
-     READ_REGISTER_FAILED
+     CONFIGURATION_FAILED,
+     WRITE_REGISTER_FAILED
    } error_code_{NONE};
 
    bool deep_sleep_mode_{false};
 
    float volume_{0};
 
-   uint8_t raw_volume_{48}; // tas5805 volume 0-254 == 24 to -103 db; 48 = 0db
    uint8_t i2c_error_{0};
+   uint8_t analog_gain_{0};
+   uint8_t digital_volume_{0};
 
    uint16_t number_registers_configured_{0};
-
 };
 
 }  // namespace tas5805m
