@@ -72,7 +72,7 @@ psram:
   speed: 80MHz
 
 external_components:
-  - source: github://mrtoy-me/esphome-components-test@dev
+  - source: github://mrtoy-me/esphome-components-test@main
     components: [ tas5805m ]
     refresh: 0s
 

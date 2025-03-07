@@ -14,6 +14,8 @@ static const uint8_t DEVICE_CTRL_2_REGISTER = 0x03; // Device state control regi
 static const uint8_t DIG_VOL_CTRL_REGISTER  = 0x4C;
 static const uint8_t AGAIN_REGISTER         = 0x54;
 
+static const uint8_t ESPHOME_MAXIMUM_DELAY  = 5;    // Milliseconds
+
 void Tas5805mComponent::setup() {
   if (this->enable_pin_ != nullptr) {
     // Set enable pin as OUTPUT and disable the enable pin
@@ -39,6 +41,7 @@ bool Tas5805mComponent::configure_registers() {
   while (i < number_configurations) {
     switch (tas5805m_registers[i].offset) {
       case CFG_META_DELAY:
+        if (tas5805m_registers[i].value > ESPHOME_MAXIMUM_DELAY) return false;
         delay(tas5805m_registers[i].value);
         break;
       default:
@@ -84,34 +87,9 @@ bool Tas5805mComponent::set_volume(float volume) {
   return true;
 }
 
-bool Tas5805mComponent::get_gain(uint8_t* value) {
-    uint8_t raw;
-    if (!this->tas5805m_read_byte(AGAIN_REGISTER, &raw)) return false;
-    // remove top 3 reserved bits
-    *value = raw & 0x1F;
-    return true;
-}
-
-// Analog Gain Control , with 0.5dB one step
-// lower 5 bits controls the analog gain.
-// 00000: 0 dB (29.5V peak voltage)
-// 00001: -0.5db
-// 11111: -15.5 dB
-bool Tas5805mComponent::set_gain(uint8_t new_value) {
-  uint8_t raw_gain = clamp<uint8_t>(new_value, 0, 31);
-  uint8_t gain_value;
-  if (!this->get_gain(&gain_value)) return false;
-  // keep top 3 reserved bits combine with bottom 5 analog gain bits
-  gain_value = (gain_value & 0xE0) | (raw_gain & 0x1F);
-  if(!this->tas5805m_write_byte(AGAIN_REGISTER, gain_value)) return false;
-  this->analog_gain_ = raw_gain;
-  return true;
-}
-
 bool Tas5805mComponent::set_mute_off() {
   if (!this->is_muted_) return true;
   this->set_volume(this->volume_);
-  //if (!this->tas5805m_write_byte(DIG_VOL_CTRL_REGISTER, this->raw_volume_)) return false;
   this->is_muted_ = false;
   ESP_LOGD(TAG, "  Tas5805m Mute Off");
   return true;
@@ -139,10 +117,10 @@ bool Tas5805mComponent::set_deep_sleep_off() {
   return this->deep_sleep_mode_;
 }
 
-bool Tas5805mComponent::get_digital_volume(uint8_t* value) {
-  uint8_t raw_volume;
-  if(!this->tas5805m_read_byte(DIG_VOL_CTRL_REGISTER, &raw_volume)) return false;
-  *value = raw_volume;
+bool Tas5805mComponent::get_digital_volume(uint8_t* raw_volume) {
+  uint8_t current;
+  if(!this->tas5805m_read_byte(DIG_VOL_CTRL_REGISTER, &current)) return false;
+  *raw_volume = current;
   return true;
 }
 
@@ -155,11 +133,35 @@ bool Tas5805mComponent::get_digital_volume(uint8_t* value) {
 // 00110001: -0.5 dB
 // 11111110: -103 dB
 // 11111111: Mute
-bool Tas5805mComponent::set_digital_volume(uint8_t new_value) {
-  uint8_t raw_volume = clamp<uint8_t>(new_value, 0, 254);
-  if (!this->tas5805m_write_byte(DIG_VOL_CTRL_REGISTER, raw_volume)) return false;
-  this->digital_volume_ = raw_volume;
-  ESP_LOGD(TAG, "  Tas5805m Digital Volume: %i", raw_volume);
+bool Tas5805mComponent::set_digital_volume(uint8_t new_volume) {
+  if (!this->tas5805m_write_byte(DIG_VOL_CTRL_REGISTER, new_volume)) return false;
+  this->digital_volume_ = new_volume;
+  ESP_LOGD(TAG, "  Tas5805m Digital Volume: %i", new_volume);
+  return true;
+}
+
+bool Tas5805mComponent::get_gain(uint8_t* raw_gain) {
+  uint8_t current;
+  if (!this->tas5805m_read_byte(AGAIN_REGISTER, &current)) return false;
+  // remove top 3 reserved bits
+  *raw_gain = current & 0x1F;
+  return true;
+}
+
+// Analog Gain Control , with 0.5dB one step
+// lower 5 bits controls the analog gain.
+// 00000: 0 dB (29.5V peak voltage)
+// 00001: -0.5db
+// 11111: -15.5 dB
+bool Tas5805mComponent::set_gain(uint8_t new_gain) {
+  if (new_gain > 0x1F) return false;
+  uint8_t raw_gain;
+  if (!this->get_gain(&raw_gain)) return false;
+  // keep top 3 reserved bits combine with bottom 5 analog gain bits
+  raw_gain = (raw_gain & 0xE0) | new_gain;
+  if (!this->tas5805m_write_byte(AGAIN_REGISTER, raw_gain)) return false;
+  this->analog_gain_ = new_gain;
+  ESP_LOGD(TAG, "  Tas5805m Analog Gain: %i", new_gain);
   return true;
 }
 
