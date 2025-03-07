@@ -37,11 +37,11 @@ class Tas5805mComponent : public audio_dac::AudioDac, public Component, public i
 
    bool configure_registers();
 
-   bool get_digital_volume(uint8_t* value);
-   bool set_digital_volume(uint8_t new_value);
+   bool get_digital_volume(uint8_t*  raw_volume);
+   bool set_digital_volume(uint8_t new_volume);
 
-   bool get_gain(uint8_t* value);
-   bool set_gain(uint8_t new_value);
+   bool get_gain(uint8_t* raw_gain);
+   bool set_gain(uint8_t new_gain);
 
    bool tas5805m_write_byte(uint8_t a_register, uint8_t data);
    bool tas5805m_read_byte(uint8_t a_register, uint8_t* data);
