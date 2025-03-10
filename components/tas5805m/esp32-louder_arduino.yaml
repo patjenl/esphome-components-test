@@ -44,7 +44,7 @@ psram:
   speed: 80MHz
 
 external_components:
-  - source: github://mrtoy-me/esphome-components-test@dev
+  - source: github://mrtoy-me/esphome-components-test@main
     components: [ tas5805m ]
     refresh: 0s
 
@@ -66,7 +66,7 @@ i2s_audio:
 
 media_player:
   - platform: i2s_audio
-    name: Louder-ESP32 mediaplayer
+    name: Louder Mediaplayer
     id: louder_mediaplayer
     dac_type: external
     i2s_dout_pin: GPIO16
@@ -80,7 +80,7 @@ media_player:
 
 switch:
   - platform: template
-    name: Enable Louder-ESP32
+    name: Enable Louder
     id: enable_louder
     optimistic: true
     restore_mode: ALWAYS_ON
@@ -91,17 +91,17 @@ switch:
       - lambda: !lambda |-
           id(tas5805_dac).set_deep_sleep_on();
 
-# interval:
-#   - interval: 1min
-#     then:
-#       - if:
-#           condition:
-#             - switch.is_on: enable_louder
-#             - for:
-#                 time: 30s
-#                 condition:
-#                   or:
-#                     - media_player.is_idle: louder_mediaplayer
-#                     - media_player.is_paused: louder_mediaplayer
-#           then:
-#             - switch.turn_off: enable_louder
+interval:
+  - interval: 30s
+    then:
+      - if:
+          condition:
+            - switch.is_on: enable_louder
+            - for:
+                time: 60s
+                condition:
+                  or:
+                    - media_player.is_idle: louder_mediaplayer
+                    - media_player.is_paused: louder_mediaplayer
+          then:
+            - switch.turn_off: enable_louder
