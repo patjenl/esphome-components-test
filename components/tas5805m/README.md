@@ -1,7 +1,7 @@
 
 ## ESPHome component for ESP32-Louder (using ESP32-S3 with PSRAM and TAS5805m DAC)
 
-This ESPHome external component is based on a  TAS5805M DAC driver for ESP32 platform<BR>
+This ESPHome external component is based on the TAS5805M DAC driver for ESP32 platform<BR>
 https://github.com/sonocotta/esp32-tas5805m-dac/tree/main by Andriy Malyshenko<BR>
 which is licenced under GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007.
 
@@ -19,7 +19,7 @@ external_components:
 
 # Example configuration entry
 The component configuration uses the esphome Audio DAC Core component,
-so is a platform under the core audio dac component.
+so it is configured as a platform under the core audio dac component.
 
 ```
 audio_dac:
@@ -47,5 +47,5 @@ Note that this configuration does not support mediaplay pause.
 
 The idf-media yaml example configures more use of psram and has two audio pipelines - media and announce.
 Volume control and mute/unmute are again undertaken by the tas5805m dac. This example reduces the volume of the media pipeline
-if the announce pipeline plays and also adjust the announce pipeline, then reverts back when the announce audio pipeline stops.
+if the announce pipeline plays and also adjusts the announce pipeline volume, then reverts back when the announce audio pipeline stops.
 The announce pipeline volume used can be altered through a number template which can be adjusted in Homeassistant.
