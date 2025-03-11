@@ -99,7 +99,7 @@ media_player:
     id: louder_mediaplayer
     volume_increment: 0.5%
     volume_min: 45%
-    volume_max: 90%
+    volume_max: 80%
     announcement_pipeline:
       speaker: speaker_id
     on_play:

@@ -122,7 +122,7 @@ media_player:
     task_stack_in_psram: true
     volume_increment: 0.5%
     volume_min: 45%
-    volume_max: 90%
+    volume_max: 80%
     media_pipeline:
       speaker: media_spk_resampling_input
       num_channels: 2
