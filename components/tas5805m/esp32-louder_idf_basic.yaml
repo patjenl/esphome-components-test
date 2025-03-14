@@ -54,11 +54,11 @@ wifi:
    gateway: 192.168.2.1
    subnet: 255.255.255.0
   # Enable fallback hotspot (captive portal) in case wifi connection fails
-  ap:
-    ssid: "Esp32-Louder Fallback Hotspot"
-    password: "2SJ8qzBXk3SN"
+  #ap:
+    #ssid: "Esp32-Louder Fallback Hotspot"
+    #password: "2SJ8qzBXk3SN"
 
-captive_portal:
+#captive_portal:
 
 psram:
   mode: octal
@@ -92,6 +92,7 @@ speaker:
     audio_dac: tas5805m_dac
     channel: stereo
     sample_rate: 48000
+    buffer_duration: 60ms
 
 media_player:
   - platform: speaker
@@ -102,6 +103,7 @@ media_player:
     volume_max: 80%
     announcement_pipeline:
       speaker: speaker_id
+    buffer_size: 100000
     on_play:
       if:
         condition:
