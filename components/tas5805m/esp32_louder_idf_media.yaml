@@ -5,12 +5,12 @@ esphome:
     board_build.flash_mode: dio
   on_boot:
   # use priority 250 so gpio and i2c dac is setup before volume is set
-    priority: 250
+    priority: -100
     then:
     ## Set a volume limit just to be safe...
     - media_player.volume_set:
         id: louder_mediaplayer
-        volume: 10%
+        volume: 5%
 
 esp32:
   board: esp32-s3-devkitc-1
@@ -96,6 +96,8 @@ speaker:
     audio_dac: tas5805m_dac
     channel: stereo
     sample_rate: 48000
+    timeout: never
+    buffer_duration: 100ms
 
   - platform: mixer
     id: mixer_speaker_id
@@ -103,7 +105,9 @@ speaker:
     output_speaker: speaker_id
     source_speakers:
       - id: announcement_spk_mixer_input
+        timeout: never
       - id: media_spk_mixer_input
+        timeout: never
 
   - platform: resampler
     id: media_spk_resampling_input
@@ -196,7 +200,7 @@ interval:
           condition:
             - switch.is_on: enable_louder
             - for:
-                time: 60s
+                time: 300s
                 condition:
                   or:
                     - media_player.is_idle: louder_mediaplayer
