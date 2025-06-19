@@ -1138,7 +1138,7 @@ static const tas5805m_cfg_reg_t tas5805m_registers[] = {
 //Register Tuning
   { 0x00, 0x00 },
   { 0x7f, 0x00 },
-  { 0x02, 0x04 },
+  { 0x02, 0x00 },
   { 0x30, 0x00 },
   { 0x4c, 0x30 }, //   @mrtoy-me change to digital volume 14db (20 decimal) for esphome arduino
   { 0x53, 0x00 },
