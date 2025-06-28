@@ -1140,7 +1140,7 @@ static const tas5805m_cfg_reg_t tas5805m_registers[] = {
   { 0x7f, 0x00 },
   { 0x02, 0x04 }, //   @patjenl change to value 0x04 to enable PBTL Mono mode
   { 0x30, 0x00 },
-  { 0x4c, 0x17 }, //   @patjenl change to digital gain
+  { 0x4c, 0x20 }, //   @patjenl change to digital gain
   { 0x53, 0x00 },
   { 0x54, 0x1F }, //   @mrtoy-me changed to analog gain -15db (31 decimal) to suit esphome idf while working with esphome arduino
   { 0x03, 0x03 },
